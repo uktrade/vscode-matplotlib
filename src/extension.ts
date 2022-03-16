@@ -2,66 +2,71 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+import * as commands from './mplCommands';
+import { MatplotlibPanel, getWebviewOptions } from "./mplPlotPanel";
+
+
+/*
 export function activate(context: vscode.ExtensionContext) {
+	const killCommand = vscode.commands.registerTextEditorCommand(
+		'extension.mplInlineKillPythonProcess',
+		commands.killPythonProcess);
+	context.subscriptions.push(killCommand);
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "vscode-matplotlib" is now active!');
+	const showPlotPanel = vscode.commands.registerCommand(
+		'extension.mplInlineShowPlots',
+		commands.showPlotPanel);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('vscode-matplotlib.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from vscode-matplotlib!');
+	context.subscriptions.push(showPlotPanel);
 
-		const panel = vscode.window.createWebviewPanel(
-			'catCoding',
-			'Cat Coding',
-			vscode.ViewColumn.One,
-			{
-				enableScripts: true,
-			}
-		  );
-
-		  // And set its HTML content
-		  panel.webview.html = getWebviewContent();
-		  function getWebviewContent() {
-			return `<!DOCTYPE html>
-		  <html lang="en">
-		  <head>
-			  <meta charset="UTF-8">
-			  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-			  <title>Cat Coding</title>
-			  <script type="text/javascript">alert(1)</script>
-		  </head>
-		  <body>
-			  <h1>Hello, world!</h1>
-			  <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
-		  </body>
-		  </html>`;
-		  }
-
-		// json rpc plugin -> investigated
-
-		// socket newline delimited json
-		// theia -> server
-		// matplotlib -> client
-
-		// code -> edit file
-		// client -> data (multiple files) -> server data -> render
-
-		// command
-		// code -> edit -> run command
-		// client (js) -> server (py)
-
-	});
-
-	context.subscriptions.push(disposable);
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+	commands.killPythonProcess();
+}
+*/
+
+
+
+
+export function activate(context: vscode.ExtensionContext) {
+	console.log("--- activate");
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			'mplPlotPanel.open', 
+			commands.createOpenPlotPanel(context))
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			'mplPlotPanel.clear', 
+			commands.createClearPlotPanel(context))
+	);
+
+	// Run python code and render plots into panel.
+	context.subscriptions.push(
+		vscode.commands.registerTextEditorCommand(
+			'mplPlotPanel.runActiveDocument', 			
+			commands.createRunActiveDocument(context))
+	);
+
+	if (vscode.window.registerWebviewPanelSerializer) {
+		// Register a serializer in activation event
+		vscode.window.registerWebviewPanelSerializer(MatplotlibPanel.viewType, {
+			async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
+				console.log(`Got state: ${state}`);
+				// Reset the webview options so we use latest uri for `localResourceRoots`.
+				webviewPanel.webview.options = getWebviewOptions(context.extensionUri);
+				MatplotlibPanel.revive(webviewPanel, context.extensionUri);
+			}
+		});
+	}
+}
+
+export function deactivate() {
+	// TODO:  Kill any python processes.
+	// TODO:  Clean up any sockets
+	// TODO:  Clean up files (?)
+	// commands.killPythonProcess();
+}

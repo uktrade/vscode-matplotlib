@@ -2,7 +2,9 @@
 	"name": "vscode-matplotlib",
 	"displayName": "vscode-matplotlib",
 	"description": "something",
-	"version": "0.0.1",
+	"version": "0.0.2",
+	"license": "MIT",
+	"repository": "https://github.com/uktrade/vscode-matplotlib",
 	"engines": {
 		"vscode": "^1.59.0"
 	},
@@ -10,14 +12,24 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:vscode-matplotlib.helloWorld"
+		"onCommand:mplPlotPanel.open",
+		"onCommand:mplPlotPanel.clear",
+		"onCommand:mplPlotPanel.runActiveDocument"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "vscode-matplotlib.helloWorld",
-				"title": "Hello World"
+				"command": "mplPlotPanel.open",
+				"title": "Matplotlib: Open plot panel"
+			},
+			{
+				"command": "mplPlotPanel.clear",
+				"title": "Matplotlib: Clear plot panel"
+			},
+			{
+				"command": "mplPlotPanel.runActiveDocument",
+				"title": "Matplotlib: Run active document and render plots in panel."
 			}
 		]
 	},
@@ -41,5 +53,6 @@
 		"mocha": "^9.2.0",
 		"typescript": "^4.5.5",
 		"vscode-test": "^1.5.2"
-	}
+	},
+	"dependencies": {}
 }

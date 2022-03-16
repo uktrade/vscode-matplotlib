@@ -1,0 +1,19 @@
+body {
+	background-color: transparent;
+}
+
+.plot-list {
+	list-style: none;
+	padding: 0;
+}
+
+.plot-info {
+	clear: both;
+}
+
+.plot-entry {
+	width: 100%;
+	display: list;
+	margin-bottom: 0.4em;
+	border: 1px solid var(--vscode-input-border);
+}
